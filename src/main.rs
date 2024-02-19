@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
 
-/// Generate image with DALL·E and prnit it
+/// Generate an image with DALL·E and display it on the terminal 
 #[derive(Parser)]
 #[command(version, about, long_about = None)] // Read from Cargo.toml
 struct Args {

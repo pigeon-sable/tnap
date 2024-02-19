@@ -2,7 +2,7 @@
 ## Usage
 
 ```
-Generate image with DALL·E and prnit it
+Generate an image with DALL·E and display it on the terminal
 
 Usage: dgen [OPTIONS] <PROMPT>
 
@@ -16,7 +16,13 @@ Options:
 ```
 
 ```sh
-$ cd dgen
 $ cargo build
 $ ./target/debug/dgen "prompt"
+
+or 
+
+$ cargo run -- "prompt"
 ```
+
+## License
+[Apache-2.0](./LICENSE)
