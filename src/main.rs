@@ -5,6 +5,7 @@ use dotenv::dotenv;
 // use generate_image::{download_image, generate_image};
 
 mod convert_image_to_ascii;
+mod display_image;
 // mod generate_image;
 
 /// Generate image with DALL-E and print it
@@ -29,7 +30,8 @@ fn main() -> Result<()> {
 
     if args.ascii {
         let image_path = "./src/img/girl_with_headphone_01.png";
-        convert_image_to_ascii(image_path)?;
+        let ascii_art = convert_image_to_ascii(image_path)?;
+        display_image::run(&ascii_art)?;
         println!("Converted image to ASCII art!");
     } else {
         println!("Non-ASCII image feature is not implemented yet.");
