@@ -1,10 +1,10 @@
 use anyhow::{anyhow, Result};
 use artem::{config::ConfigBuilder, convert};
+use core::num::NonZeroU32;
 use image::io::Reader as ImageReader;
-use std::num::NonZeroU32;
 use std::path::Path;
 
-pub fn convert_image_to_ascii(image_path: &str, width: Option<u32>) -> Result<()> {
+pub fn convert_image_to_ascii(image_path: &str, size: Option<u32>) -> Result<()> {
     // Open the image file
     let img = ImageReader::open(Path::new(image_path))
         .map_err(|e| anyhow!("Failed to open image: {}", e))?
@@ -12,13 +12,18 @@ pub fn convert_image_to_ascii(image_path: &str, width: Option<u32>) -> Result<()
         .map_err(|e| anyhow!("Failed to decode image: {}", e))?;
 
     // // Conversion Config
-    let mut config_builder = ConfigBuilder::new();
-    if let Some(w) = width {
-        if let Some(target_width) = NonZeroU32::new(w) {
-            config_builder.target_size(target_width);
-        }
-    }
-    let config = config_builder.build();
+    let config = if let Some(s) = size {
+        let target_size = NonZeroU32::new(s).expect("Width must be non-zero.");
+        println!("target_size: {}", target_size);
+        ConfigBuilder::new()
+            .center_x(true)
+            .center_y(true)
+            .scale(0.40f32)
+            .target_size(target_size)
+            .build()
+    } else {
+        ConfigBuilder::new().build()
+    };
 
     // Convert image to ASCII
     let ascii_art = convert(img, &config);
