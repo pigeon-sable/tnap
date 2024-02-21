@@ -3,9 +3,9 @@ use artem::{config::ConfigBuilder, convert};
 use image::io::Reader as ImageReader;
 use std::path::Path;
 
-pub fn convert_image_to_ascii(image_path: &str) -> Result<String> {
+pub fn convert_image_to_ascii(image_path: &Path) -> Result<String> {
     // Open the image file
-    let img = ImageReader::open(Path::new(image_path))
+    let img = ImageReader::open(image_path)
         .map_err(|e| anyhow!("Failed to open image: {}", e))?
         .decode()
         .map_err(|e| anyhow!("Failed to decode image: {}", e))?;
@@ -20,7 +20,7 @@ pub fn convert_image_to_ascii(image_path: &str) -> Result<String> {
     // Convert image to ASCII
     let ascii_art = convert(img, &artem::config::ConfigBuilder::new().build());
 
-    println!("{}", ascii_art);
+    // println!("{}", ascii_art);
 
     Ok(ascii_art)
 }
