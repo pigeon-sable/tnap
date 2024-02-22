@@ -4,9 +4,9 @@ use core::num::NonZeroU32;
 use image::io::Reader as ImageReader;
 use std::path::Path;
 
-pub fn convert_image_to_ascii(image_path: &str, size: Option<u32>) -> Result<()> {
+pub fn convert_image_to_ascii(image_path: &Path, size: Option<u32>) -> Result<String> {
     // Open the image file
-    let img = ImageReader::open(Path::new(image_path))
+    let img = ImageReader::open(image_path)
         .map_err(|e| anyhow!("Failed to open image: {}", e))?
         .decode()
         .map_err(|e| anyhow!("Failed to decode image: {}", e))?;
@@ -28,7 +28,7 @@ pub fn convert_image_to_ascii(image_path: &str, size: Option<u32>) -> Result<()>
     // Convert image to ASCII
     let ascii_art = convert(img, &config);
 
-    println!("{}", ascii_art);
+    // println!("{}", ascii_art);
 
-    Ok(())
+    Ok(ascii_art)
 }
