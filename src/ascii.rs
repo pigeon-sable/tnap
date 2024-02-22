@@ -5,11 +5,8 @@ use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode};
 use ratatui::Frame;
 use ratatui::{backend::Backend, widgets::Paragraph, Terminal};
+use std::path::PathBuf;
 use std::time::{Duration, Instant};
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
 
 struct App {
     files: Vec<PathBuf>,
@@ -34,20 +31,6 @@ pub fn run(theme: &str) -> Result<()> {
     reset_terminal()?;
 
     Ok(())
-}
-
-fn get_files(theme: &str) -> Result<Vec<PathBuf>> {
-    let mut files = vec![];
-
-    let dir = Path::new("themes").join(theme);
-    for entry in fs::read_dir(dir)? {
-        let path = entry?.path();
-        if path.is_file() {
-            files.push(path);
-        }
-    }
-
-    Ok(files)
 }
 
 fn run_tui<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {

@@ -6,6 +6,7 @@ use generate_image::{download_image, generate_image};
 mod ascii;
 mod convert_image_to_ascii;
 mod generate_image;
+mod non_ascii;
 mod util;
 
 /// Generate image with DALL-E and print it
@@ -34,7 +35,7 @@ fn main() -> Result<()> {
     if args.ascii {
         ascii::run("test")?;
     } else {
-        println!("Non-ASCII image feature is not implemented yet.");
+        non_ascii::run("test")?;
     }
 
     Ok(())
