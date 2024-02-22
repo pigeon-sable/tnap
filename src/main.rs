@@ -40,7 +40,7 @@ fn main() -> Result<()> {
         // let image_path = "./src/img/girl_with_headphone_01.png";
         // convert_image_to_ascii(image_path, Some(size))?;
 
-        let data = get_ascii_arts("test")?;
+        let data = get_ascii_arts("test", Some(size))?;
         println!("Converted image to ASCII art!");
         display_image::run(&data)?;
     } else {
@@ -50,14 +50,14 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn get_ascii_arts(theme: &str) -> Result<Vec<String>> {
+fn get_ascii_arts(theme: &str, size: Option<u32>) -> Result<Vec<String>> {
     let mut data = vec![];
 
     let dir = Path::new("examples").join(theme);
     for entry in fs::read_dir(dir)? {
         let path = entry?.path();
         if path.is_file() {
-            let ascii_art = convert_image_to_ascii(&path)?;
+            let ascii_art = convert_image_to_ascii(&path, size)?;
             println!("{}", ascii_art); // TODO: Remove later
             data.push(ascii_art);
         }
