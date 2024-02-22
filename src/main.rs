@@ -1,14 +1,15 @@
 use anyhow::Result;
 use clap::Parser;
-use convert_image_to_ascii::convert_image_to_ascii;
 use dotenv::dotenv;
 use generate_image::{download_image, generate_image};
 use std::fs;
 use std::path::Path;
 use toml::Value;
 
+mod ascii;
 mod convert_image_to_ascii;
 mod generate_image;
+mod util;
 
 /// You can use sample themes for tnap and generate image with default prompts or your own prompts.
 #[derive(Parser)]

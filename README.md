@@ -1,10 +1,5 @@
 # tnap - Let's take a nap 💤
 
-## What's `tnap`?
-
-`tnap` is the screen save for TUI.
-You can use sample themes for tnap and generate image with default prompts or your own prompts.
-
 ## Examples
 
 ### Prompt
@@ -22,26 +17,19 @@ You can use sample themes for tnap and generate image with default prompts or yo
 ## Usage
 
 ```
-You can use sample themes for tnap and generate image with default prompts or your own prompts
+Generate image with DALL-E and print it
 
-Usage: dgen [OPTIONS]
+Usage: tnap [OPTIONS]
 
 Options:
-  -t, --theme <THEME>    Use the sample theme without generating images
-  -k, --key <KEY>        Generate Image by looking up the corresponding value in config.toml using the subsequent string as a key and using it as a prompt
-  -p, --prompt <PROMPT>  Generate images with user-considered prompt
+  -p, --prompt <PROMPT>  Prompt to pass to DALL-E
   -a, --ascii            Convert an image to ASCII art
   -h, --help             Print help
   -V, --version          Print version
 ```
 
 ```sh
-$ cargo build
-$ ./target/debug/dgen "prompt"
-
-or
-
-$ cargo run -- "prompt"
+$ cargo run 
 ```
 
 ## License
