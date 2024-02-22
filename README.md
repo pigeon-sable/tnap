@@ -1,4 +1,4 @@
-# dgen
+# tnap - Let's take a nap :zzz:
 
 ## Examples
 
@@ -17,26 +17,19 @@
 ## Usage
 
 ```
-Generate an image with DALL·E and display it on the terminal
+Generate image with DALL-E and print it
 
-Usage: dgen [OPTIONS] <PROMPT>
-
-Arguments:
-  <PROMPT>  Prompt to pass to DALL·E
+Usage: tnap [OPTIONS]
 
 Options:
-  -a, --ascii    Convert an image to ASCII art
-  -h, --help     Print help
-  -V, --version  Print version
+  -p, --prompt <PROMPT>  Prompt to pass to DALL-E
+  -a, --ascii            Convert an image to ASCII art
+  -h, --help             Print help
+  -V, --version          Print version
 ```
 
 ```sh
-$ cargo build
-$ ./target/debug/dgen "prompt"
-
-or
-
-$ cargo run -- "prompt"
+$ cargo run 
 ```
 
 ## License
