@@ -45,7 +45,7 @@ fn init_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>> {
 
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
-    terminal.hide_cursor()?; // or clear?
+    terminal.clear()?;
 
     Ok(terminal)
 }
@@ -81,7 +81,10 @@ fn run_tui<B: Backend>(terminal: &mut Terminal<B>, app: App) -> Result<()> {
         if last_tick.elapsed() >= tick_rate {
             count = (count + 1) % app.data.len();
             match app.data.get(count) {
-                Some(s) => text = s,
+                Some(s) => {
+                    text = s;
+                    // terminal.clear()?;
+                }
                 None => return Ok(()),
             }
             last_tick = Instant::now();

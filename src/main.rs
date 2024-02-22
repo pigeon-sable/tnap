@@ -32,9 +32,10 @@ fn main() -> Result<()> {
     if args.ascii {
         // let image_path = "./src/img/girl_with_headphone_01.png";
         // convert_image_to_ascii(image_path)?;
-        // println!("Converted image to ASCII art!");
 
-        run_screen_saver(Path::new("examples/cat"))?;
+        let data = get_ascii_arts("test")?;
+        println!("Converted image to ASCII art!");
+        display_image::run(&data)?;
     } else {
         println!("Non-ASCII image feature is not implemented yet.");
     }
@@ -42,16 +43,18 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn run_screen_saver(path: &Path) -> Result<()> {
+fn get_ascii_arts(theme: &str) -> Result<Vec<String>> {
     let mut data = vec![];
-    for entry in fs::read_dir(path)? {
-        let image_path = entry?.path();
-        if image_path.is_file() {
-            let ascii_art = convert_image_to_ascii(&image_path)?;
+
+    let dir = Path::new("examples").join(theme);
+    for entry in fs::read_dir(dir)? {
+        let path = entry?.path();
+        if path.is_file() {
+            let ascii_art = convert_image_to_ascii(&path)?;
+            println!("{}", ascii_art); // TODO: Remove later
             data.push(ascii_art);
         }
     }
-    display_image::run(&data)?;
 
-    Ok(())
+    Ok(data)
 }
