@@ -1,4 +1,4 @@
-# tnap - Let's take a nap :zzz:
+# tnap - Let's take a nap 💤
 
 ## Examples
 
