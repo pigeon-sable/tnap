@@ -3,9 +3,11 @@ use clap::Parser;
 use convert_image_to_ascii::convert_image_to_ascii;
 use crossterm::terminal::size;
 use dotenv::dotenv;
+use std::{fs, path::Path};
 use generate_image::{download_image, generate_image};
 
 mod convert_image_to_ascii;
+mod display_image;
 mod generate_image;
 
 /// Generate image with DALL-E and print it
@@ -35,12 +37,31 @@ fn main() -> Result<()> {
         let (columns, rows) = size()?;
         let size = (std::cmp::min(columns, rows) * 2) as u32;
         println!("size: {}", size);
-        let image_path = "./src/img/girl_with_headphone_01.png";
-        convert_image_to_ascii(image_path, Some(size))?;
+        // let image_path = "./src/img/girl_with_headphone_01.png";
+        // convert_image_to_ascii(image_path, Some(size))?;
+
+        let data = get_ascii_arts("test", Some(size))?;
         println!("Converted image to ASCII art!");
+        display_image::run(&data)?;
     } else {
         println!("Non-ASCII image feature is not implemented yet.");
     }
 
     Ok(())
+}
+
+fn get_ascii_arts(theme: &str, size: Option<u32>) -> Result<Vec<String>> {
+    let mut data = vec![];
+
+    let dir = Path::new("examples").join(theme);
+    for entry in fs::read_dir(dir)? {
+        let path = entry?.path();
+        if path.is_file() {
+            let ascii_art = convert_image_to_ascii(&path, size)?;
+            println!("{}", ascii_art); // TODO: Remove later
+            data.push(ascii_art);
+        }
+    }
+
+    Ok(data)
 }
