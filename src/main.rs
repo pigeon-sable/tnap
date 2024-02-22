@@ -1,5 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
+use convert_image_to_ascii::convert_image_to_ascii;
 use dotenv::dotenv;
 use generate_image::{download_image, generate_image};
 use std::fs;
@@ -85,7 +86,11 @@ fn display_generated_image_from_prompt(prompt: &str, ascii: bool) -> Result<()> 
 
 fn display_image(path: &str, ascii: bool) -> Result<()> {
     if ascii {
-        convert_image_to_ascii(&path)?;
+        let ascii_art = convert_image_to_ascii(Path::new(&path));
+        match ascii_art {
+            Ok(art) => println!("{}", art), // 成功した場合、ASCII アートを出力
+            Err(e) => println!("Error converting image to ASCII: {:?}", e), // エラーが発生した場合、エラーメッセージを出力
+        }
     } else {
         println!("Displaying image: {}", path);
         // render_image(&path)?;
