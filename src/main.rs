@@ -1,10 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
-use convert_image_to_ascii::convert_image_to_ascii;
-use crossterm::terminal::size;
 use dotenv::dotenv;
 use generate_image::{download_image, generate_image};
-use std::{fs, path::Path};
 
 mod ascii;
 mod convert_image_to_ascii;
@@ -35,34 +32,10 @@ fn main() -> Result<()> {
     }
 
     if args.ascii {
-        let (columns, rows) = size()?;
-        let size = (std::cmp::min(columns, rows) * 2) as u32;
-        println!("size: {}", size);
-        // let image_path = "./src/img/girl_with_headphone_01.png";
-        // convert_image_to_ascii(image_path, Some(size))?;
-
-        let data = get_ascii_arts("test", Some(size))?;
-        println!("Converted image to ASCII art!");
-
-        ascii::run(&data)?;
+        ascii::run("test")?;
     } else {
         println!("Non-ASCII image feature is not implemented yet.");
     }
 
     Ok(())
-}
-
-fn get_ascii_arts(theme: &str, size: Option<u32>) -> Result<Vec<String>> {
-    let mut data = vec![];
-
-    let dir = Path::new("examples").join(theme);
-    for entry in fs::read_dir(dir)? {
-        let path = entry?.path();
-        if path.is_file() {
-            let ascii_art = convert_image_to_ascii(&path, size)?;
-            data.push(ascii_art);
-        }
-    }
-
-    Ok(data)
 }

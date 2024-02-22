@@ -1,3 +1,4 @@
+use crate::convert_image_to_ascii::convert_image_to_ascii;
 use crate::util::*;
 use ansi_to_tui::IntoText;
 use anyhow::Result;
@@ -5,29 +6,48 @@ use crossterm::event::{self, Event, KeyCode};
 use ratatui::Frame;
 use ratatui::{backend::Backend, widgets::Paragraph, Terminal};
 use std::time::{Duration, Instant};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 struct App {
-    data: Vec<String>,
+    files: Vec<PathBuf>,
     index: usize,
 }
 
 impl App {
-    fn new(data: &[String]) -> Self {
+    fn new(files: &[PathBuf]) -> Self {
         Self {
-            data: data.to_vec(),
+            files: files.to_vec(),
             index: 0,
         }
     }
 }
 
-pub fn run(ascii_arts: &[String]) -> Result<()> {
+pub fn run(theme: &str) -> Result<()> {
+    let files = get_files(theme)?;
+    let app = App::new(&files);
     let mut terminal = init_terminal()?;
-    let app = App::new(ascii_arts);
 
     run_tui(&mut terminal, app)?;
     reset_terminal()?;
 
     Ok(())
+}
+
+fn get_files(theme: &str) -> Result<Vec<PathBuf>> {
+    let mut files = vec![];
+
+    let dir = Path::new("themes").join(theme);
+    for entry in fs::read_dir(dir)? {
+        let path = entry?.path();
+        if path.is_file() {
+            files.push(path);
+        }
+    }
+
+    Ok(files)
 }
 
 fn run_tui<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {
@@ -50,19 +70,22 @@ fn run_tui<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {
         }
 
         if last_tick.elapsed() >= tick_rate {
-            app.index = (app.index + 1) % app.data.len();
+            app.index = (app.index + 1) % app.files.len();
             last_tick = Instant::now();
         }
     }
 }
 
 fn ui(frame: &mut Frame, app: &mut App) {
-    let t = app
-        .data
+    let path = app
+        .files
         .get(app.index)
-        .expect("Failed to get data")
+        .expect("Failed to get an image path");
+    let ascii_art = convert_image_to_ascii(&path)
+        .expect("Failed to convert image to ascii art")
         .into_text()
-        .expect("Failed to convert String to Text");
-    let p = Paragraph::new(t).centered();
-    frame.render_widget(p, frame.size())
+        .unwrap();
+    let paragraph = Paragraph::new(ascii_art).centered();
+
+    frame.render_widget(paragraph, frame.size())
 }
