@@ -3,12 +3,13 @@ use clap::Parser;
 use convert_image_to_ascii::convert_image_to_ascii;
 use crossterm::terminal::size;
 use dotenv::dotenv;
-use std::{fs, path::Path};
 use generate_image::{download_image, generate_image};
+use std::{fs, path::Path};
 
+mod ascii;
 mod convert_image_to_ascii;
-mod display_image;
 mod generate_image;
+mod util;
 
 /// Generate image with DALL-E and print it
 #[derive(Parser)]
@@ -42,7 +43,8 @@ fn main() -> Result<()> {
 
         let data = get_ascii_arts("test", Some(size))?;
         println!("Converted image to ASCII art!");
-        display_image::run(&data)?;
+
+        ascii::run(&data)?;
     } else {
         println!("Non-ASCII image feature is not implemented yet.");
     }
@@ -58,7 +60,6 @@ fn get_ascii_arts(theme: &str, size: Option<u32>) -> Result<Vec<String>> {
         let path = entry?.path();
         if path.is_file() {
             let ascii_art = convert_image_to_ascii(&path, size)?;
-            println!("{}", ascii_art); // TODO: Remove later
             data.push(ascii_art);
         }
     }

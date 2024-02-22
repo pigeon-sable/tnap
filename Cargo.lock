@@ -404,24 +404,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 
 [[package]]
-name = "dgen"
-version = "0.1.0"
-dependencies = [
- "ansi-to-tui",
- "anyhow",
- "artem",
- "clap",
- "crossterm",
- "dotenv",
- "image",
- "ratatui",
- "reqwest",
- "serde",
- "serde_json",
- "toml",
-]
-
-[[package]]
 name = "dotenv"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1682,12 +1664,14 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 name = "tnap"
 version = "0.1.0"
 dependencies = [
+ "ansi-to-tui",
  "anyhow",
  "artem",
  "clap",
  "crossterm",
  "dotenv",
  "image",
+ "ratatui",
  "reqwest",
  "serde",
  "serde_json",
