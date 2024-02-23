@@ -95,11 +95,11 @@ fn display_image(path: &str, ascii: bool) -> Result<()> {
     if ascii {
         let ascii_art = convert_image_to_ascii(Path::new(&path));
         match ascii_art {
-            Ok(art) => println!("{}", art), // 成功した場合、ASCII アートを出力
-            Err(e) => println!("Error converting image to ASCII: {:?}", e), // エラーが発生した場合、エラーメッセージを出力
+            Ok(art) => println!("{}", art), // If successful, output ASCII art
+            Err(e) => println!("Error converting image to ASCII: {:?}", e), // Output error messages when errors occur
         }
     } else {
-        println!("Displaying image: {}", path);
+        println!("Displaying image directly is not supported in this context.");
         // render_image(&path)?;
     }
     Ok(())
