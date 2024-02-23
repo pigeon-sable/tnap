@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 use clap::Parser;
 use convert_image_to_ascii::convert_image_to_ascii;
 use dotenv::dotenv;
@@ -10,6 +10,7 @@ use toml::Value;
 mod ascii;
 mod convert_image_to_ascii;
 mod generate_image;
+mod non_ascii;
 mod util;
 
 /// You can use sample themes for tnap and generate image with default prompts or your own prompts.
@@ -51,11 +52,13 @@ fn display_theme(theme: &str, ascii: bool) -> Result<()> {
     let path = format!("./themes/{}/{}_01.png", theme, theme);
     // println!("{}", path);
     if Path::new(&path).exists() {
-        display_image(&path, ascii)?;
-    } else {
-        println!("Error: Theme not found.");
+        if ascii {
+            return ascii::run(theme);
+        } else {
+            return non_ascii::run(theme);
+        }
     }
-    Ok(())
+    bail!("Theme '{}' not found.", theme);
 }
 
 fn display_generated_image_from_config(key: &str, ascii: bool) -> Result<()> {
@@ -67,11 +70,9 @@ fn display_generated_image_from_config(key: &str, ascii: bool) -> Result<()> {
         .and_then(|v| v.get(key))
         .and_then(|v| v.as_str())
     {
-        display_generated_image_from_prompt(&prompt, ascii)?;
-    } else {
-        println!("Error: Key not found in config.");
+        return display_generated_image_from_prompt(&prompt, ascii);
     }
-    Ok(())
+    bail!("Key not found in config.");
 }
 
 fn display_generated_image_from_prompt(prompt: &str, ascii: bool) -> Result<()> {

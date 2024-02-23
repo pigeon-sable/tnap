@@ -5,11 +5,8 @@ use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode};
 use ratatui::Frame;
 use ratatui::{backend::Backend, widgets::Paragraph, Terminal};
+use std::path::PathBuf;
 use std::time::{Duration, Instant};
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
 
 struct App {
     files: Vec<PathBuf>,
@@ -22,6 +19,10 @@ impl App {
             files: files.to_vec(),
             index: 0,
         }
+    }
+
+    fn on_tick(&mut self) {
+        self.index = (self.index + 1) % self.files.len();
     }
 }
 
@@ -36,20 +37,6 @@ pub fn run(theme: &str) -> Result<()> {
     Ok(())
 }
 
-fn get_files(theme: &str) -> Result<Vec<PathBuf>> {
-    let mut files = vec![];
-
-    let dir = Path::new("themes").join(theme);
-    for entry in fs::read_dir(dir)? {
-        let path = entry?.path();
-        if path.is_file() {
-            files.push(path);
-        }
-    }
-
-    Ok(files)
-}
-
 fn run_tui<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {
     let tick_rate = Duration::from_secs(3);
     let mut last_tick = Instant::now();
@@ -60,17 +47,14 @@ fn run_tui<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {
         let timeout = tick_rate.saturating_sub(last_tick.elapsed());
         if event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
-                match key.code {
-                    KeyCode::Char('q') => return Ok(()),
-                    // TODO: Switch between ASCII art and image mode
-                    KeyCode::Char('s') => eprintln!("Unimplemented feature."),
-                    _ => (),
+                if let KeyCode::Char('q') = key.code {
+                    return Ok(());
                 }
             }
         }
 
         if last_tick.elapsed() >= tick_rate {
-            app.index = (app.index + 1) % app.files.len();
+            app.on_tick();
             last_tick = Instant::now();
         }
     }
