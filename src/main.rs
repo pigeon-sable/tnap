@@ -71,7 +71,7 @@ fn display_generated_image_from_config(key: &str, ascii: bool) -> Result<()> {
         .and_then(|v| v.as_str())
     {
         return display_generated_image_from_prompt(&prompt, ascii);
-    }     
+    }
     bail!("Key not found in config.");
 }
 
