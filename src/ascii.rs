@@ -69,7 +69,7 @@ fn ui(frame: &mut Frame, app: &mut App) {
         .expect("Failed to convert image to ascii art")
         .into_text()
         .unwrap();
-    let paragraph = Paragraph::new(ascii_art).centered();
+    let paragraph = Paragraph::new(ascii_art); // .centered();
 
     frame.render_widget(paragraph, frame.size())
 }
