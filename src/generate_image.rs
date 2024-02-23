@@ -41,4 +41,7 @@ pub fn download_image(url: &str, file_path: &str) -> Result<()> {
     // println!("Image saved to {:?}", path);
 
     Ok(())
+    // let response = reqwest::blocking::get(url)?;
+    // let bytes = response.bytes()?;
+    // Ok(bytes.to_vec())
 }

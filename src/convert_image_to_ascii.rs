@@ -12,6 +12,10 @@ pub fn convert_image_to_ascii(image_path: &Path) -> Result<String> {
         .decode()
         .map_err(|e| anyhow!("Failed to decode image: {}", e))?;
 
+    // Read image data from memory
+    // let img = image::load_from_memory(image_data)
+    //     .map_err(|e| anyhow!("Failed to load image from memory: {}", e))?;
+
     // Conversion Config
     let target_size = NonZeroU32::new(ascii_size()?).expect("Width must be non-zero.");
     // println!("target_size: {}", target_size);
