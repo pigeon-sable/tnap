@@ -10,10 +10,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-pub fn get_files(theme: &str) -> Result<Vec<PathBuf>> {
+pub fn get_files(dir: &Path) -> Result<Vec<PathBuf>> {
     let mut files = vec![];
 
-    let dir = Path::new("themes").join(theme);
     for entry in fs::read_dir(dir)? {
         let path = entry?.path();
         if path.is_file() {
