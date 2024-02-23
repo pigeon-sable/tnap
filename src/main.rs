@@ -7,10 +7,9 @@ use std::fs;
 use std::path::Path;
 use toml::Value;
 
-mod ascii;
+mod app;
 mod convert_image_to_ascii;
 mod generate_image;
-mod non_ascii;
 mod util;
 
 /// You can use sample themes for tnap and generate image with default prompts or your own prompts.
@@ -40,28 +39,29 @@ fn main() -> Result<()> {
     let args = Args::parse();
 
     match (args.theme, args.key, args.prompt) {
-        (Some(theme), None, None) => display_theme(&theme, args.ascii)?,
-        (None, Some(key), None) => display_generated_image_from_config(&key, args.ascii)?,
-        (None, None, Some(prompt)) => display_generated_image_from_prompt(&prompt, args.ascii)?,
-        _ => println!("Error: Invalid arguments combination."),
+        (Some(theme), None, None) => return display_theme(&theme, args.ascii),
+        (None, Some(key), None) => return display_generated_image_from_config(&key, args.ascii),
+        (None, None, Some(prompt)) => {
+            return display_generated_image_from_prompt(&prompt, args.ascii)
+        }
+        _ => bail!("Invalid arguments combination."),
     }
-    Ok(())
 }
 
 fn display_theme(theme: &str, ascii: bool) -> Result<()> {
     let path = format!("./themes/{}/{}_01.png", theme, theme);
     // println!("{}", path);
+
+    // Check if the theme exists and has images.
     if Path::new(&path).exists() {
-        if ascii {
-            return ascii::run(theme);
-        } else {
-            return non_ascii::run(theme);
-        }
+        let dir = Path::new("./themes").join(theme);
+        return app::run(&dir, ascii);
     }
     bail!("Theme '{}' not found.", theme);
 }
 
 fn display_generated_image_from_config(key: &str, ascii: bool) -> Result<()> {
+    // TODO: Check if config file exists
     let contents = fs::read_to_string("./config.toml").unwrap();
     let value = contents.parse::<Value>().unwrap();
 
@@ -78,13 +78,19 @@ fn display_generated_image_from_config(key: &str, ascii: bool) -> Result<()> {
 fn display_generated_image_from_prompt(prompt: &str, ascii: bool) -> Result<()> {
     println!("Generating image...");
     let image_url = generate_image(&prompt)?;
-    let image_path = "./generate_image.png";
-    download_image(&image_url, image_path)?;
-    println!("Generated image downloaded to {}", image_path);
-    display_image(image_path, ascii)?;
+
+    let path = Path::new("./generated_images").join("2024_0224_0000/generate_image.png");
+    download_image(&image_url, &path)?;
+    println!("Generated image downloaded to {:?}", path);
+
+    let dir = path
+        .parent()
+        .expect("Failed to get path to a generated image.");
+    app::run(dir, ascii)?;
     Ok(())
 }
 
+#[allow(dead_code)]
 fn display_image(path: &str, ascii: bool) -> Result<()> {
     if ascii {
         let ascii_art = convert_image_to_ascii(Path::new(&path));

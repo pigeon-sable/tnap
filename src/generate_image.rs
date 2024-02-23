@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 use std::env;
 use std::fs::File;
 use std::io::Write;
-use std::path::Path;
+use std::path::PathBuf;
 
 pub fn generate_image(prompt: &str) -> Result<String> {
     let api_key =
@@ -32,9 +32,8 @@ pub fn generate_image(prompt: &str) -> Result<String> {
     Ok(image_url)
 }
 
-pub fn download_image(url: &str, file_path: &str) -> Result<()> {
+pub fn download_image(url: &str, path: &PathBuf) -> Result<()> {
     let response = reqwest::blocking::get(url)?.bytes()?;
-    let path = Path::new(file_path);
     let mut file = File::create(path)?;
 
     file.write_all(&response)?;
