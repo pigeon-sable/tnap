@@ -23,8 +23,8 @@ You can rest the terminal in a secure.
 
 ## Screenshots
 
-<img src="./examples/girl_with_headphone.png" alt="girl_with_headphone" width="49%">
-<img src="./examples/girl_with_headphone_ascii.png" alt="girl_with_headphone_ascii" width="49%">
+<img src="./examples/girl_with_headphone.png" alt="girl_with_headphone" width="45%">
+<img src="./examples/girl_with_headphone_ascii.png" alt="girl_with_headphone_ascii" width="45%">
 
 ## Usage
 
@@ -68,5 +68,3 @@ cargo install tnap
 - 🧪 [@Gteruya](https://github.com/Gteruya)
 
 [![GitHub](https://img.shields.io/badge/-Follow--FFFFFF?style=social&logo=github&label=Follow%20pigeon-sable)](https://github.com/pigeon-sable)
-
-![Logo](https://github.com/pigeon-sable.png)
