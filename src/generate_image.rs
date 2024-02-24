@@ -9,7 +9,8 @@ use std::path::PathBuf;
 pub fn generate_image(prompt: &str) -> Result<String> {
     let api_key =
         env::var("OPENAI_API_KEY").expect("Expected an environment variable OPENAI_API_KEY");
-    // println!("prompt: {}", prompt);
+    log::info!("prompt: {}", prompt);
+
     let client = reqwest::blocking::Client::new();
     let response = client
         .post("https://api.openai.com/v1/images/generations")
@@ -23,7 +24,8 @@ pub fn generate_image(prompt: &str) -> Result<String> {
         }))
         .send()?
         .json::<Value>()?;
-    // println!("API Response: {:?}", response);
+    log::info!("API Response: {:?}", response);
+
     let image_url = response["data"][0]["url"]
         .as_str()
         .ok_or(anyhow!("Failed to extract image URL"))?
@@ -37,7 +39,7 @@ pub fn download_image(url: &str, path: &PathBuf) -> Result<()> {
     let mut file = File::create(path)?;
 
     file.write_all(&response)?;
-    // println!("Image saved to {:?}", path);
+    log::info!("Image saved to {:?}", path);
 
     Ok(())
     // let response = reqwest::blocking::get(url)?;

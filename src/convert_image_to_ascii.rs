@@ -18,7 +18,7 @@ pub fn convert_image_to_ascii(image_path: &Path) -> Result<String> {
 
     // Conversion Config
     let target_size = NonZeroU32::new(ascii_size()?).expect("Width must be non-zero.");
-    // println!("target_size: {}", target_size);
+    log::info!("target size: {}", target_size);
 
     let config = ConfigBuilder::new()
         .center_x(true)
@@ -29,7 +29,6 @@ pub fn convert_image_to_ascii(image_path: &Path) -> Result<String> {
 
     // Convert image to ASCII
     let ascii_art = convert(img, &config);
-    // println!("Converted image to ASCII art!");
 
     Ok(ascii_art)
 }
@@ -37,7 +36,7 @@ pub fn convert_image_to_ascii(image_path: &Path) -> Result<String> {
 fn ascii_size() -> Result<u32> {
     let (columns, rows) = size()?;
     let size = (std::cmp::min(columns, rows) * 2) as u32;
-    // println!("size: {}", size);
+    log::info!("ascii size: {}", size);
 
     Ok(size)
 }
