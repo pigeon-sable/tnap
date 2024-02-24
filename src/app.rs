@@ -105,21 +105,13 @@ impl App {
     }
 
     fn on_tick(&mut self) {
-        let mut index = self.index + 1;
-
         let binding = PATHS.lock().unwrap();
         let length = binding.len();
-        if index >= length {
-            index %= length;
-        }
-        self.index = index;
+        self.index = (self.index + 1) % length;
 
-        if !self.ascii {
-            let binding = PATHS.lock().unwrap();
-            let path = binding.get(self.index).unwrap();
-            let dyn_img = image::io::Reader::open(path).unwrap().decode().unwrap();
-            self.image_source = ImageSource::new(dyn_img.clone(), self.picker.font_size);
-            self.image_state = self.picker.new_resize_protocol(dyn_img);
-        }
+        let path = binding.get(self.index).unwrap();
+        let dyn_img = image::io::Reader::open(path).unwrap().decode().unwrap();
+        self.image_source = ImageSource::new(dyn_img.clone(), self.picker.font_size);
+        self.image_state = self.picker.new_resize_protocol(dyn_img);
     }
 }

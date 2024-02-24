@@ -16,8 +16,8 @@ mod util;
 // Path to the directory containing the images to draw
 pub static PATHS: Lazy<Mutex<Vec<PathBuf>>> = Lazy::new(|| Mutex::new(Vec::new()));
 
-// Maximum number of images to generates
 // TODO: Change it to 5
+// Maximum number of images to generates
 const MAX_IMAGES: u8 = 2;
 
 /// You can use sample themes for tnap and generate image with default prompts or your own prompts.
@@ -44,11 +44,9 @@ struct Args {
 
 fn main() -> Result<()> {
     dotenv().ok(); // Read environment variable from .env file
-    let args = Args::parse();
     env_logger::init();
 
-    // TODO: If `generated_images` directory does not exist, make it under the current directory
-
+    let args = Args::parse();
     match (args.theme, args.key, args.prompt) {
         (Some(theme), None, None) => display_theme(&theme, args.ascii),
         (None, Some(key), None) => {
@@ -57,16 +55,13 @@ fn main() -> Result<()> {
         }
         (None, None, Some(prompt)) => display_generated_image(&prompt, args.ascii),
         // TODO: Set default values
-        (None, None, None) => {
-            let prompt = read_config("cat")?;
-            display_generated_image(&prompt, args.ascii)
-        }
+        (None, None, None) => display_theme("cat", args.ascii),
         _ => bail!("Invalid arguments combination."),
     }
 }
 
 fn display_theme(theme: &str, ascii: bool) -> Result<()> {
-    // TODO: Avoid hard-coding
+    // TODO: Use an environment variable
     let path = Path::new("./themes")
         .join(theme)
         .join(format!("{}_01.png", theme));
@@ -74,20 +69,20 @@ fn display_theme(theme: &str, ascii: bool) -> Result<()> {
     // Check if the theme exists and has images
     if path.exists() {
         let dir = path.parent().unwrap();
-        log::info!("{:?}", fs::canonicalize(&dir));
+        log::info!("{:?}", fs::canonicalize(dir));
 
-        return app::run(&dir, ascii);
+        return app::run(dir, ascii);
     }
     bail!("Theme '{}' not found.", theme);
 }
 
 fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
-    // TODO: Avoid hard-coding
+    // TODO: Use an environment variable
     // TODO: Generate directory name from timestamp and make a directory
     let dir_name = "2024_0224_0000";
     let dir_path = Path::new("./generated_images").join(dir_name);
 
-    // TODO: Avoid hard-coding
+    // TODO: Use an environment variable
     // Add an image path to display while waiting for image generation
     let path_to_sample = Path::new("./examples").join("girl_with_headphone.png");
     PATHS.lock().unwrap().push(path_to_sample);
@@ -96,12 +91,12 @@ fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
     let prompt = prompt.to_string();
     let handle = thread::spawn(move || {
         for i in 0..MAX_IMAGES {
-            // println!("{}: Generating image...", i);
+            log::info!("{}: Generating image...", i);
             let path = dir_path2.join(&format!("{}.png", i));
             let url = generate_image(&prompt).expect("Failed to generate an image.");
 
             download_image(&url, &path).expect("Failed to download a generated image.");
-            // println!("Generated image downloaded to {:?}", path);
+            log::info!("Generated image downloaded to {:?}", path);
 
             PATHS.lock().unwrap().push(path);
         }
@@ -116,7 +111,7 @@ fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
 }
 
 fn read_config(key: &str) -> Result<String> {
-    // TODO: Avoid hard-coding
+    // TODO: Use an environment variable
     let contents = fs::read_to_string("./config.toml").expect("config.toml does not exist.");
     let value = contents.parse::<Value>().unwrap();
 
