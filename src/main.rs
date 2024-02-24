@@ -1,8 +1,10 @@
 use anyhow::{bail, Result};
+use chrono::Local;
 use clap::Parser;
 use dotenv::dotenv;
 use generate_image::{download_image, generate_image};
 use once_cell::sync::Lazy;
+use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::{fs, thread};
@@ -78,22 +80,22 @@ fn display_theme(theme: &str, ascii: bool) -> Result<()> {
 
 fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
     // TODO: Use an environment variable
-    // TODO: Generate directory name from timestamp and make a directory
-    let dir_name = "2024_0224_0000";
-    let dir_path = Path::new("./generated_images").join(dir_name);
+    let time = Local::now().format("%Y_%m_%d_%H_%M").to_string();
+    let dir_path = Path::new("./generated_images").join(time);
+    create_dir_all(&dir_path)?;
 
     // TODO: Use an environment variable
     // Add an image path to display while waiting for image generation
     let path_to_sample = Path::new("./examples").join("girl_with_headphone.png");
     PATHS.lock().unwrap().push(path_to_sample);
 
-    let dir_path2 = dir_path.clone();
+    let dir = dir_path.clone();
     let prompt = prompt.to_string();
     let handle = thread::spawn(move || {
         for i in 0..MAX_IMAGES {
             log::info!("{}: Generating image...", i);
-            let path = dir_path2.join(&format!("{}.png", i));
             let url = generate_image(&prompt).expect("Failed to generate an image.");
+            let path = dir.join(&format!("{}.png", i));
 
             download_image(&url, &path).expect("Failed to download a generated image.");
             log::info!("Generated image downloaded to {:?}", path);
