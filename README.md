@@ -1,44 +1,72 @@
+<div align="center">
+
 # tnap - Let's take a nap 💤
 
-## What's `tnap`?
+![Demo](./examples/demo.gif)
 
-`tnap` is the screen save for TUI.
-You can use sample themes for tnap and generate image with default prompts or your own prompts.
+`tnap` is a screen saver for the terminal.
+You can rest the terminal in a secure.
 
-## Examples
+[![Lang](https://img.shields.io/badge/Rust-1.26+-blue.svg?logo=rust)](https://www.rust-lang.org/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![Release](https://img.shields.io/badge/Release-v0.1.0-blue.svg)
 
-### Prompt
+</div>
 
-"high-contrast black and white Japanese anime illustration of a serene Japanese girl wearing cute headphones. She is depicted in a three-quarter view with her hand gently resting on one earpiece, enjoying the music. The image focuses on the texture of her hair and the soft expression on her face, all set against a pure black background to highlight the subject. Her hair is black and outline is white."
+## Features
 
-### Image
+- [x] Display images in the terminal and use it as a screen saver
+- [x] Convert images to **_ASCII art_**
+- [x] Use images generated using **_[DALL-E 3](https://openai.com/dall-e-3)_**
+- [x] Generate by simply specifying a key in `config.toml` without thinking a prompt
+- [x] Of course, you can also generate images by specifying a prompt
 
-![girl_with_headphone.png](./examples/girl_with_headphone.png)
+## Screenshots
 
-### Output
-
-![girl_with_headphone_ascii.png](./examples/girl_with_headphone_ascii.png)
+<img src="./examples/girl_with_headphone.png" alt="girl_with_headphone" width="49%">
+<img src="./examples/girl_with_headphone_ascii.png" alt="girl_with_headphone_ascii" width="49%">
 
 ## Usage
 
-```
-You can use sample themes for tnap and generate image with default prompts or your own prompts
+| Option              | Description                                          | Type   | Required? |
+| ------------------- | ---------------------------------------------------- | ------ | --------- |
+| `--theme <THEME>`   | Use the sample theme without generating images       | String | Yes       |
+| `--key <KEY>`       | Generate images by a default prompt in `config.toml` | String | Yes       |
+| `--prompt <PROMPT>` | Generate images with a user's prompt                 | String | Yes       |
+| `--ascii`           | Convert an image to ASCII art                        | bool   | Yes       |
 
-Usage: tnap [OPTIONS]
+## Installation
 
-Options:
-  -t, --theme <THEME>    Use the sample theme without generating images
-  -k, --key <KEY>        Generate Image by looking up the corresponding value in config.toml using the subsequent string as a key and using it as a prompt
-  -p, --prompt <PROMPT>  Generate images with user-considered prompt
-  -a, --ascii            Convert an image to ASCII art
-  -h, --help             Print help
-  -V, --version          Print version
+You can install tnap using Homebrew and cargo:
+
+```bash
+brew install tnap
 ```
 
-```sh
-cargo run
+```bash
+cargo install tnap
 ```
+
+## Acknowledgements
+
+- [sheepla/pingu](https://github.com/sheepla/pingu) - 🐧ping command but with pingu
+- [mtoyoda/sl](https://github.com/mtoyoda/sl) - SL(1): Cure your bad habit of mistyping
+- [dduan/tre](https://github.com/dduan/tre) - Tree command, improved.
+- [dalance/procs](https://github.com/dalance/procs) - A modern replacement for ps written in Rust
+- [sharkdp/bat](https://github.com/sharkdp/bat) - A `cat` clone with wings.
+- [ogham/exa](https://github.com/ogham/exa) - A modern replacement for ‘`ls`.
 
 ## License
 
-[Apache-2.0](./LICENSE)
+🪪 [Apache-2.0](./LICENSE)
+
+## Authors
+
+- 🍪 [@shuheykoyama](https://github.com/shuheykoyama)
+- 🦀 [@4n12i](https://github.com/4n12i)
+- 👮 [@Kobayashi123](https://github.com/Kobayashi123)
+- 🧪 [@Gteruya](https://github.com/Gteruya)
+
+[![GitHub](https://img.shields.io/badge/-Follow--FFFFFF?style=social&logo=github&label=Follow%20pigeon-sable)](https://github.com/pigeon-sable)
+
+![Logo](https://github.com/pigeon-sable.png)
