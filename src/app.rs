@@ -1,5 +1,6 @@
 use crate::convert_image_to_ascii::convert_image_to_ascii;
 use crate::util::*;
+use crate::PATHS;
 use ansi_to_tui::IntoText;
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode};
@@ -16,6 +17,8 @@ use std::time::{Duration, Instant};
 
 pub fn run(dir: &Path, ascii: bool) -> Result<()> {
     let files = get_files(dir)?;
+    PATHS.lock().unwrap().extend_from_slice(&files);
+
     let mut app = App::new(&files, ascii);
     let mut terminal = init_terminal()?;
 
@@ -38,7 +41,10 @@ struct App {
 
 impl App {
     fn new(files: &[PathBuf], ascii: bool) -> Self {
-        let path = files.first().unwrap();
+        // let path = files.first().unwrap();
+        let binding = PATHS.lock().unwrap();
+        let path = binding.first().unwrap();
+
         let dyn_img = image::io::Reader::open(path).unwrap().decode().unwrap();
 
         let mut picker = Picker::from_termios().unwrap();
@@ -86,8 +92,11 @@ impl App {
 
     fn ui(&mut self, frame: &mut Frame) {
         if self.ascii {
-            let path = self.files.get(self.index).unwrap();
-            let ascii_art = convert_image_to_ascii(&path)
+            // let path = self.files.get(self.index).unwrap();
+            let binding = PATHS.lock().unwrap();
+            let path = binding.get(self.index).unwrap();
+
+            let ascii_art = convert_image_to_ascii(path)
                 .expect("Failed to convert image to ascii art")
                 .into_text()
                 .unwrap();
@@ -100,8 +109,17 @@ impl App {
     }
 
     fn on_tick(&mut self) {
-        self.index = (self.index + 1) % self.files.len();
-        
+        let mut index = self.index + 1;
+        let length = {
+            let paths = PATHS.lock().unwrap();
+            paths.len()
+        };
+        if index >= length {
+            index %= length;
+        }
+        self.index = index;
+        // self.index = (self.index + 1) % self.files.len();
+
         if !self.ascii {
             let path = self.files.get(self.index).unwrap();
             let dyn_img = image::io::Reader::open(path).unwrap().decode().unwrap();

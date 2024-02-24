@@ -1734,6 +1734,7 @@ dependencies = [
  "crossterm",
  "dotenv",
  "image",
+ "once_cell",
  "ratatui",
  "ratatui-image",
  "reqwest",
