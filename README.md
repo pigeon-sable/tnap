@@ -32,10 +32,10 @@ You can rest the terminal in a secure.
 
 | Option              | Description                                          | Type   | Required? |
 | ------------------- | ---------------------------------------------------- | ------ | --------- |
-| `--theme <THEME>`   | Use the sample theme without generating images       | String | Yes       |
-| `--key <KEY>`       | Generate images by a default prompt in `config.toml` | String | Yes       |
-| `--prompt <PROMPT>` | Generate images with a user's prompt                 | String | Yes       |
-| `--ascii`           | Convert an image to ASCII art                        | bool   | Yes       |
+| `--theme <THEME>`   | Use the sample theme without generating images       | String | No        |
+| `--key <KEY>`       | Generate images by a default prompt in `config.toml` | String | No        |
+| `--prompt <PROMPT>` | Generate images with a user's prompt                 | String | No        |
+| `--ascii`           | Convert an image to ASCII art                        | bool   | No        |
 
 ## Installation
 
