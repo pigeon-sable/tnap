@@ -85,23 +85,30 @@ impl App {
     }
 
     fn ui(&mut self, frame: &mut Frame) {
+        let frame_size = frame.size();
+
         if self.ascii {
             let path = self.files.get(self.index).unwrap();
             let ascii_art = convert_image_to_ascii(&path)
                 .expect("Failed to convert image to ascii art")
                 .into_text()
                 .unwrap();
+            let ascii_height = ascii_art.lines.len() as u16;
+            let offset_y = (frame_size.height - ascii_height) / 2;
+            let area = ratatui::layout::Rect::new(0, offset_y, frame_size.width, ascii_height);
             let paragraph = Paragraph::new(ascii_art);
-            frame.render_widget(paragraph, frame.size())
+            // println!("frame.size(): {}, area: {}", frame.size(), area);
+            // println!("ascii_lines: {}", ascii_lines);
+            frame.render_widget(paragraph, area)
         } else {
             let image = StatefulImage::new(None).resize(Resize::Fit);
-            frame.render_stateful_widget(image, frame.size(), &mut self.image_state);
+            frame.render_stateful_widget(image, frame_size, &mut self.image_state);
         }
     }
 
     fn on_tick(&mut self) {
         self.index = (self.index + 1) % self.files.len();
-        
+
         if !self.ascii {
             let path = self.files.get(self.index).unwrap();
             let dyn_img = image::io::Reader::open(path).unwrap().decode().unwrap();

@@ -23,7 +23,7 @@ pub fn convert_image_to_ascii(image_path: &Path) -> Result<String> {
     let config = ConfigBuilder::new()
         .center_x(true)
         .center_y(true)
-        .scale(0.40f32)
+        .scale(0.40f32) // TODO: change the magic number
         .target_size(target_size)
         .build();
 
