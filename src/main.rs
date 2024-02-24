@@ -6,6 +6,8 @@ use generate_image::{download_image, generate_image};
 use once_cell::sync::Lazy;
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Mutex;
 use std::{fs, thread};
 use toml::Value;
@@ -16,11 +18,12 @@ mod generate_image;
 mod util;
 
 // Path to the directory containing the images to draw
-pub static PATHS: Lazy<Mutex<Vec<PathBuf>>> = Lazy::new(|| Mutex::new(Vec::new()));
+static PATHS: Lazy<Mutex<Vec<PathBuf>>> = Lazy::new(|| Mutex::new(Vec::new()));
 
-// TODO: Change it to 5
+static APP_EXIT: AtomicBool = AtomicBool::new(false);
+
 // Maximum number of images to generates
-const MAX_IMAGES: u8 = 2;
+const MAX_IMAGES: u8 = 5;
 
 /// You can use sample themes for tnap and generate image with default prompts or your own prompts.
 #[derive(Parser)]
@@ -62,6 +65,21 @@ fn main() -> Result<()> {
     }
 }
 
+fn read_config(key: &str) -> Result<String> {
+    // TODO: Use an environment variable
+    let contents = fs::read_to_string("./config.toml").expect("config.toml does not exist.");
+    let value = contents.parse::<Value>().unwrap();
+
+    match value
+        .get("prompts")
+        .and_then(|v| v.get(key))
+        .and_then(|v| v.as_str())
+    {
+        Some(prompt) => Ok(prompt.to_string()),
+        None => bail!("Key not found in config."),
+    }
+}
+
 fn display_theme(theme: &str, ascii: bool) -> Result<()> {
     // TODO: Use an environment variable
     let path = Path::new("./themes")
@@ -80,7 +98,7 @@ fn display_theme(theme: &str, ascii: bool) -> Result<()> {
 
 fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
     // TODO: Use an environment variable
-    let time = Local::now().format("%Y_%m_%d_%H_%M").to_string();
+    let time = Local::now().format("%Y_%m%d_%H%M").to_string();
     let dir_path = Path::new("./generated_images").join(time);
     create_dir_all(&dir_path)?;
 
@@ -92,13 +110,21 @@ fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
     let dir = dir_path.clone();
     let prompt = prompt.to_string();
     let handle = thread::spawn(move || {
-        for i in 0..MAX_IMAGES {
-            log::info!("{}: Generating image...", i);
-            let url = generate_image(&prompt).expect("Failed to generate an image.");
-            let path = dir.join(&format!("{}.png", i));
+        let mut url = generate_image(&prompt).unwrap();
+        let mut path = dir.join("0.png");
+        download_image(&url, &path).expect("Failed to download a generated image.");
 
+        PATHS.lock().unwrap().push(path);
+        PATHS.lock().unwrap().remove(0); // Remove a sample image path
+
+        for i in 1..MAX_IMAGES {
+            if APP_EXIT.load(SeqCst) {
+                break;
+            }
+
+            url = generate_image(&prompt).unwrap();
+            path = dir.join(&format!("{}.png", i));
             download_image(&url, &path).expect("Failed to download a generated image.");
-            log::info!("Generated image downloaded to {:?}", path);
 
             PATHS.lock().unwrap().push(path);
         }
@@ -110,19 +136,4 @@ fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
         .expect("Couldn't join on the associated thread.");
 
     Ok(())
-}
-
-fn read_config(key: &str) -> Result<String> {
-    // TODO: Use an environment variable
-    let contents = fs::read_to_string("./config.toml").expect("config.toml does not exist.");
-    let value = contents.parse::<Value>().unwrap();
-
-    match value
-        .get("prompts")
-        .and_then(|v| v.get(key))
-        .and_then(|v| v.as_str())
-    {
-        Some(prompt) => Ok(prompt.to_string()),
-        None => bail!("Key not found in config."),
-    }
 }

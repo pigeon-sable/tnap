@@ -1,5 +1,6 @@
 use crate::convert_image_to_ascii::convert_image_to_ascii;
 use crate::util::*;
+use crate::APP_EXIT;
 use crate::PATHS;
 use ansi_to_tui::IntoText;
 use anyhow::Result;
@@ -13,6 +14,7 @@ use ratatui_image::{
     Resize, StatefulImage,
 };
 use std::path::Path;
+use std::sync::atomic::Ordering::SeqCst;
 use std::time::{Duration, Instant};
 
 pub fn run(dir: &Path, ascii: bool) -> Result<()> {
@@ -73,7 +75,10 @@ impl App {
                 if let Event::Key(key) = event::read()? {
                     match key.code {
                         KeyCode::Char('a') => self.ascii = !self.ascii,
-                        KeyCode::Char('q') => return Ok(()),
+                        KeyCode::Char('q') => {
+                            APP_EXIT.store(true, SeqCst);
+                            return Ok(());
+                        }
                         _ => (),
                     }
                 }
