@@ -12,14 +12,14 @@ use ratatui_image::{
     protocol::{ImageSource, StatefulProtocol},
     Resize, StatefulImage,
 };
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::time::{Duration, Instant};
 
 pub fn run(dir: &Path, ascii: bool) -> Result<()> {
     let files = get_files(dir)?;
     PATHS.lock().unwrap().extend_from_slice(&files);
 
-    let mut app = App::new(&files, ascii);
+    let mut app = App::new(ascii);
     let mut terminal = init_terminal()?;
 
     app.run_tui(&mut terminal)?;
@@ -30,8 +30,6 @@ pub fn run(dir: &Path, ascii: bool) -> Result<()> {
 
 struct App {
     ascii: bool,
-
-    files: Vec<PathBuf>, // TODO: Allow changes later (to add generated image paths)
     index: usize,
 
     picker: Picker,
@@ -40,8 +38,7 @@ struct App {
 }
 
 impl App {
-    fn new(files: &[PathBuf], ascii: bool) -> Self {
-        // let path = files.first().unwrap();
+    fn new(ascii: bool) -> Self {
         let binding = PATHS.lock().unwrap();
         let path = binding.first().unwrap();
 
@@ -55,7 +52,6 @@ impl App {
 
         Self {
             ascii,
-            files: files.to_vec(),
             index: 0,
             picker,
             image_source,
@@ -92,7 +88,6 @@ impl App {
 
     fn ui(&mut self, frame: &mut Frame) {
         if self.ascii {
-            // let path = self.files.get(self.index).unwrap();
             let binding = PATHS.lock().unwrap();
             let path = binding.get(self.index).unwrap();
 
@@ -101,6 +96,7 @@ impl App {
                 .into_text()
                 .unwrap();
             let paragraph = Paragraph::new(ascii_art);
+
             frame.render_widget(paragraph, frame.size())
         } else {
             let image = StatefulImage::new(None).resize(Resize::Fit);
@@ -110,18 +106,17 @@ impl App {
 
     fn on_tick(&mut self) {
         let mut index = self.index + 1;
-        let length = {
-            let paths = PATHS.lock().unwrap();
-            paths.len()
-        };
+
+        let binding = PATHS.lock().unwrap();
+        let length = binding.len();
         if index >= length {
             index %= length;
         }
         self.index = index;
-        // self.index = (self.index + 1) % self.files.len();
 
         if !self.ascii {
-            let path = self.files.get(self.index).unwrap();
+            let binding = PATHS.lock().unwrap();
+            let path = binding.get(self.index).unwrap();
             let dyn_img = image::io::Reader::open(path).unwrap().decode().unwrap();
             self.image_source = ImageSource::new(dyn_img.clone(), self.picker.font_size);
             self.image_state = self.picker.new_resize_protocol(dyn_img);
