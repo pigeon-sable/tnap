@@ -37,6 +37,7 @@ struct Args {
 fn main() -> Result<()> {
     dotenv().ok(); // Read environment variable from .env file
     let args = Args::parse();
+    env_logger::init();
 
     match (args.theme, args.key, args.prompt) {
         (Some(theme), None, None) => return display_theme(&theme, args.ascii),
@@ -50,11 +51,12 @@ fn main() -> Result<()> {
 
 fn display_theme(theme: &str, ascii: bool) -> Result<()> {
     let path = format!("./themes/{}/{}_01.png", theme, theme);
-    // println!("{}", path);
 
     // Check if the theme exists and has images.
     if Path::new(&path).exists() {
         let dir = Path::new("./themes").join(theme);
+        log::info!("{:?}", fs::canonicalize(&dir));
+
         return app::run(&dir, ascii);
     }
     bail!("Theme '{}' not found.", theme);
