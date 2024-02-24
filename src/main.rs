@@ -45,6 +45,7 @@ struct Args {
 fn main() -> Result<()> {
     dotenv().ok(); // Read environment variable from .env file
     let args = Args::parse();
+    env_logger::init();
 
     // TODO: If `generated_images` directory does not exist, make it under the current directory
 
@@ -73,6 +74,8 @@ fn display_theme(theme: &str, ascii: bool) -> Result<()> {
     // Check if the theme exists and has images
     if path.exists() {
         let dir = path.parent().unwrap();
+        log::info!("{:?}", fs::canonicalize(&dir));
+
         return app::run(&dir, ascii);
     }
     bail!("Theme '{}' not found.", theme);
