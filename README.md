@@ -23,8 +23,10 @@ You can rest the terminal in a secure.
 
 ## Screenshots
 
-<img src="./examples/girl_with_headphone.png" alt="girl_with_headphone" width="45%">
-<img src="./examples/girl_with_headphone_ascii.png" alt="girl_with_headphone_ascii" width="45%">
+<div align="center">
+    <img src="./examples/girl_with_headphone.png" alt="girl_with_headphone" width="49%">
+    <img src="./examples/girl_with_headphone_ascii.png" alt="girl_with_headphone_ascii" width="49%">
+</div>
 
 ## Usage
 
