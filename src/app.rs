@@ -84,6 +84,10 @@ impl App {
         }
     }
 
+    static mut PATH_IN_UI:str = "path";
+    static mut ASCII_HEIGHT:u16 = 0;
+    static FILE:str = "";
+
     fn ui(&mut self, frame: &mut Frame) {
         let frame_size = frame.size();
 
@@ -103,6 +107,23 @@ impl App {
         } else {
             let image = StatefulImage::new(None).resize(Resize::Fit);
             frame.render_stateful_widget(image, frame_size, &mut self.image_state);
+        }
+    }
+
+    #[cfg(test)]
+    mod tests_of_ui {
+        use super::*;
+        use ratatui::backend::TestBackend;
+        #[test]
+        fn test_ui(){
+            let mut app = App::new(FILE, false);
+            let mut test_frame = Frame::new(TestBackend::new(10, 10)); 
+
+
+            app.ui(&mut test_frame);
+            asserteq!(PATH_IN_UI, "***");  
+            asserteq!(ASCII_HEIGHT, );
+        
         }
     }
 
