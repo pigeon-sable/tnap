@@ -33,32 +33,6 @@ pub fn convert_image_to_ascii(image_path: &Path) -> Result<String> {
     Ok(ascii_art)
 }
 
-#[cfg(test)]
-mod tests_of_convert_image_to_ascii{
-    use super::*;
-    use std::path::PathBuf;
-
-    #[test]
-    fn test_convert_image_to_ascii() {
-        // Prepare image files for testing.
-        let image_path = PathBuf::from("test_images/test_image.png");
-
-        // Convert the image to ASCII art.
-        let result = convert_image_to_ascii(&image_path);
-
-        // Compare with the expected ASCII art.
-        let expected_ascii_art = "expected_ascii_art";
-        assert_eq!(result, Ok(expected_ascii_art));
-    }
-}
-
-
-
-
-// static mut COLUMNS:u16 = 0;
-// static mut ROWS:u16 = 0;
-static mut SIZE:u32 = 0;
-
 fn ascii_size() -> Result<u32> {
     let (columns, rows) = size()?;
     let size = (std::cmp::min(columns, rows) * 2) as u32;
@@ -67,16 +41,22 @@ fn ascii_size() -> Result<u32> {
     Ok(size)
 }
 
-
-
 #[cfg(test)]
-mod tests_of_ascii_size {
+mod tests {
     use super::*;
 
     #[test]
-    fn test_ascii_size() {
-        
+    fn test_convert_image_to_ascii() {
+        // TODO: Change
+        // Prepare image files for testing.
+        let image_path = Path::new("./examples/girl_with_headphone.png");
 
-        assert_eq!(SIZE, ascii_size());
+        // Convert the image to ASCII art.
+        let result = convert_image_to_ascii(&image_path);
+        assert!(result.is_ok());
+
+        // Compare with the expected ASCII art.
+        // let expected_ascii_art = "expected_ascii_art";
+        // assert_eq!(result, Ok(expected_ascii_art));
     }
 }
