@@ -23,7 +23,7 @@ static PATHS: Lazy<Mutex<Vec<PathBuf>>> = Lazy::new(|| Mutex::new(Vec::new()));
 static APP_EXIT: AtomicBool = AtomicBool::new(false);
 
 // Maximum number of images to generates
-const MAX_IMAGES: u8 = 3;
+const MAX_IMAGES: u8 = 5;
 
 /// You can use sample themes for tnap and generate image with default prompts or your own prompts.
 #[derive(Parser)]
@@ -149,14 +149,32 @@ fn is_image_file(path: &Path) -> bool {
 }
 
 fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
-    // TODO: Use an environment variable
+    let tnap_root = match env::var("TNAP_ROOT") {
+        Ok(val) => {
+            log::info!("The data was obtained from the environment variable TNAP_ROOT");
+            val
+        },
+        Err(err) => {
+            log::info!("{}", err);
+            log::info!("The data was obtained from the current directory");
+            Path::new(".").canonicalize().unwrap().to_str().unwrap().to_string()
+        }
+    };
+    log::info!("TNAP_ROOT: {}", tnap_root);
+
+    let dir_path = format!("{}/generated_images", tnap_root);
+    log::info!("dir_path: {}", dir_path);
+
     let time = Local::now().format("%Y_%m%d_%H%M").to_string();
-    let dir_path = Path::new("./generated_images").join(time);
+    let dir_path = Path::new(&dir_path).join(time);
+
     create_dir_all(&dir_path)?;
 
-    // TODO: Use an environment variable
     // Add an image path to display while waiting for image generation
-    let path_to_sample = Path::new("./examples").join("girl_with_headphone.png");
+    let path_to_sample = format!("{}/examples", tnap_root);
+    log::info!("path_to_sample: {}", path_to_sample);
+
+    let path_to_sample = Path::new(&path_to_sample).join("girl_with_headphone.png");
     PATHS.lock().unwrap().push(path_to_sample);
 
     let dir = dir_path.clone();
