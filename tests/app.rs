@@ -84,16 +84,36 @@ impl App {
         }
     }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_run_tui(){
+        // assert!(());  
+        
+    }
+}
+
+
+
+
+static mut PATH_IN_UI: str = "path";
+static mut ASCII_HEIGHT: u16 = 0;
+static FILE str = "";
+
     fn ui(&mut self, frame: &mut Frame) {
         let frame_size = frame.size();
 
         if self.ascii {
             let path = self.files.get(self.index).unwrap();
+            PATH = self.files.get(self.index).unwrap();
             let ascii_art = convert_image_to_ascii(&path)
                 .expect("Failed to convert image to ascii art")
                 .into_text()
                 .unwrap();
             let ascii_height = ascii_art.lines.len() as u16;
+            ASCII_HEIGHT = ascii_art.lines.len() as u16;
             let offset_y = (frame_size.height - ascii_height) / 2;
             let area = ratatui::layout::Rect::new(0, offset_y, frame_size.width, ascii_height);
             let paragraph = Paragraph::new(ascii_art);
@@ -107,7 +127,22 @@ impl App {
     }
 
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ratatui::backend::TestBackend;
+    #[test]
+    fn test_ui(){
+        let mut app = App::new(FILE, false);
+        let mut test_frame = Frame::new(TestBackend::new(10, 10)); 
 
+
+        app.ui(&mut test_frame);
+        asserteq!(PATH_IN_UI, "***");  
+        asserteq!(ASCII_HEIGHT, );
+    
+    }
+}
 
     fn on_tick(&mut self) {
         self.index = (self.index + 1) % self.files.len();
