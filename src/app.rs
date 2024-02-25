@@ -152,3 +152,25 @@ impl App {
         self.image_state = self.picker.new_resize_protocol(dyn_img);
     }
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use ratatui::backend::TestBackend;
+
+//     #[test]
+//     fn test_ui(){
+//         static mut PATH_IN_UI:str = "path";
+//         static mut ASCII_HEIGHT:u16 = 0;
+//         static FILE:str = "";
+
+//         let mut app = App::new(FILE, false);
+//         let mut test_frame = Frame::new(TestBackend::new(10, 10)); 
+
+
+//         app.ui(&mut test_frame);
+//         asserteq!(PATH_IN_UI, "***");  
+//         asserteq!(ASCII_HEIGHT, );
+    
+//     }
+// }

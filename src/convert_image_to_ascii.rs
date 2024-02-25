@@ -40,3 +40,23 @@ fn ascii_size() -> Result<u32> {
 
     Ok(size)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_convert_image_to_ascii() {
+        // TODO: Change
+        // Prepare image files for testing.
+        let image_path = Path::new("./examples/girl_with_headphone.png");
+
+        // Convert the image to ASCII art.
+        let result = convert_image_to_ascii(&image_path);
+        assert!(result.is_ok());
+
+        // Compare with the expected ASCII art.
+        // let expected_ascii_art = "expected_ascii_art";
+        // assert_eq!(result, Ok(expected_ascii_art));
+    }
+}
