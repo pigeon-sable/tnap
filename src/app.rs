@@ -101,8 +101,34 @@ impl App {
             // println!("ascii_lines: {}", ascii_lines);
             frame.render_widget(paragraph, area)
         } else {
+            let image_width = frame_size.width * 4 / 5;
+            let image_height = frame_size.height * 4 / 5;
+
             let image = StatefulImage::new(None).resize(Resize::Fit);
-            frame.render_stateful_widget(image, frame_size, &mut self.image_state);
+            // 描画エリアの中央配置を計算
+            let area = ratatui::layout::Rect::new(
+                (frame_size.width / 2).saturating_sub(image_width / 2) + frame_size.width * 1 / 7,
+                // (frame_size.width / 2).saturating_sub(image_width / 2),
+                (frame_size.height / 2).saturating_sub(image_height / 2),
+                image_width,
+                image_height,
+            );
+            // println!(
+            //     "frame_size.width: {}, frame_size.height: {}",
+            //     frame_size.width, frame_size.height
+            // );
+            // println!(
+            //     "image_width: {}, image_height: {}",
+            //     image_width, image_height
+            // );
+            // println!("area: {}", area);
+            // println!(
+            //     "self.image_source.image.width(): {},
+            //     self.image_source.image.height(): {}",
+            //     self.image_source.image.width(),
+            //     self.image_source.image.height()
+            // );
+            frame.render_stateful_widget(image, area, &mut self.image_state);
         }
     }
 
