@@ -31,7 +31,7 @@ pub fn generate_image(prompt: &str) -> Result<String> {
         .ok_or(anyhow!("Failed to extract image URL"))?
         .to_string();
 
-    // log::info!("image_url {}", image_url);
+    log::info!("image_url {}", image_url);
     Ok(image_url)
 }
 
