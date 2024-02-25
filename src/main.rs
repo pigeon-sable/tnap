@@ -3,7 +3,7 @@ use clap::Parser;
 use convert_image_to_ascii::convert_image_to_ascii;
 use dotenv::dotenv;
 use generate_image::{download_image, generate_image};
-use std::fs;
+use std::{env, fs};
 use std::path::Path;
 use toml::Value;
 
@@ -50,21 +50,72 @@ fn main() -> Result<()> {
 }
 
 fn display_theme(theme: &str, ascii: bool) -> Result<()> {
-    let path = format!("./themes/{}/{}_01.png", theme, theme);
+    // Obtained from the environment variable TNAP_ROOT, or if it does not exist, the path of the current directory is selected
+    let tnap_root = match env::var("TNAP_ROOT") {
+        Ok(val) => {
+            log::info!("The data was obtained from the environment variable TNAP_ROOT");
+            val
+        },
+        Err(err) => {
+            log::info!("{}", err);
+            log::info!("The data was obtained from the current directory");
+            Path::new(".").canonicalize().unwrap().to_str().unwrap().to_string()
+        }
+    };
+    log::info!("TNAP_ROOT: {}", tnap_root);
 
-    // Check if the theme exists and has images.
-    if Path::new(&path).exists() {
-        let dir = Path::new("./themes").join(theme);
-        log::info!("{:?}", fs::canonicalize(&dir));
+    let themes_path = format!("{}/themes", tnap_root);
+    log::info!("themes_path: {}", themes_path);
 
-        return app::run(&dir, ascii);
+    let theme_path = format!("{}/{}", themes_path, theme);
+    log::info!("{}_path: {}", theme, theme_path);
+
+    if Path::new(&theme_path).exists() {
+        let files = fs::read_dir(Path::new(&theme_path)).unwrap();
+        let mut flag = false;
+
+        for file in files {
+            let file_path = file.unwrap().path();
+
+            // Checks if a file exists and if it is an image file.
+            if file_path.is_file() && is_image_file(&file_path){
+                log::info!("image_path： {}", file_path.display());
+            } else {
+                flag = true;
+                break;
+            }
+        }
+
+        // If the file contains anything other than an image file
+        if flag {
+            bail!("{} ({}) include non-image file", theme, theme_path);
+        }
+
+        return app::run(Path::new(&theme_path), ascii);
     }
-    bail!("Theme '{}' not found.", theme);
+    bail!("{} ({}) is not found", theme, theme_path);
+}
+
+fn is_image_file(path: &Path) -> bool {
+    let image_extensions = ["png", "jpg", "jpeg", "PNG", "JPG", "JPEG"];
+    let extension = path.extension().unwrap().to_str().unwrap();
+
+    image_extensions.contains(&extension)
 }
 
 fn display_generated_image_from_config(key: &str, ascii: bool) -> Result<()> {
-    // TODO: Check if config file exists
-    let contents = fs::read_to_string("./config.toml").unwrap();
+    let tnap_root = env::var("TNAP_ROOT").expect("Expected an environment variable TNAP_ROOT");
+    log::info!("TNAP_ROOT: {:?}", tnap_root);
+
+    let config_path = format!("{}/config.toml", tnap_root);
+    log::info!("config_path: {:?}", config_path);
+
+    // Check if config.toml exists
+    if !(Path::new(&config_path).exists()) {
+        bail!("config.toml is not found")
+    }
+
+    let contents = fs::read_to_string(config_path).unwrap();
     let value = contents.parse::<Value>().unwrap();
 
     if let Some(prompt) = value
