@@ -39,14 +39,13 @@ You can rest the terminal in a secure.
 
 ## Installation
 
-You can install tnap using Homebrew and cargo:
+You can install tnap by following these steps: 
 
 ```bash
-brew install tnap
-```
-
-```bash
-cargo install tnap
+gh repo clone pigeon-sable/tnap
+cd tnap
+cargo install --path .
+export TNAP_ROOT=`pwd`
 ```
 
 ## Acknowledgements
