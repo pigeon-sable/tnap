@@ -21,6 +21,7 @@ mod util;
 static PATHS: Lazy<Mutex<Vec<PathBuf>>> = Lazy::new(|| Mutex::new(Vec::new()));
 
 static APP_EXIT: AtomicBool = AtomicBool::new(false);
+static GEN_EXIT: AtomicBool = AtomicBool::new(false);
 
 // Maximum number of images to generates
 const MAX_IMAGES: u8 = 5;
@@ -128,9 +129,16 @@ fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
 
             PATHS.lock().unwrap().push(path);
         }
+
+        GEN_EXIT.store(true, SeqCst);
     });
 
     app::run(&dir_path, ascii)?;
+
+    if !GEN_EXIT.load(SeqCst) {
+        eprintln!("Waiting for image generation to complete...");
+    }
+
     handle
         .join()
         .expect("Couldn't join on the associated thread.");
