@@ -107,7 +107,7 @@ fn display_theme(theme: &str, ascii: bool) -> Result<()> {
 
 fn is_image_file(path: &Path) -> bool {
     let image_extensions = ["png", "jpg", "jpeg", "PNG", "JPG", "JPEG"];
-    let extension = path.extension().and_then(OsStr::to_str).unwrap(); // .to_str().unwrap();
+    let extension = path.extension().and_then(OsStr::to_str).unwrap();
 
     image_extensions.contains(&extension)
 }
