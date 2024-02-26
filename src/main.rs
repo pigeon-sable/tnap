@@ -4,6 +4,8 @@ use clap::Parser;
 use dotenv::dotenv;
 use generate_image::{download_image, generate_image};
 use once_cell::sync::Lazy;
+use std::env::current_dir;
+use std::ffi::OsStr;
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
@@ -17,14 +19,14 @@ mod convert_image_to_ascii;
 mod generate_image;
 mod util;
 
+// Maximum number of images to generates
+const MAX_IMAGES: u8 = 5;
+
 // Path to the directory containing the images to draw
 static PATHS: Lazy<Mutex<Vec<PathBuf>>> = Lazy::new(|| Mutex::new(Vec::new()));
 
 static APP_EXIT: AtomicBool = AtomicBool::new(false);
 static GEN_EXIT: AtomicBool = AtomicBool::new(false);
-
-// Maximum number of images to generates
-const MAX_IMAGES: u8 = 5;
 
 /// You can use sample themes for tnap and generate image with default prompts or your own prompts.
 #[derive(Parser)]
@@ -60,31 +62,18 @@ fn main() -> Result<()> {
             display_generated_image(&prompt, args.ascii)
         }
         (None, None, Some(prompt)) => display_generated_image(&prompt, args.ascii),
-        // TODO: Set default values
         (None, None, None) => display_theme("cat", args.ascii),
-        _ => bail!("Invalid arguments combination."),
+        _ => bail!("Invalid arguments combination. `tnap -h` has more details."),
     }
 }
 
 fn read_config(key: &str) -> Result<String> {
-    let tnap_root = match env::var("TNAP_ROOT") {
-        Ok(val) => {
-            log::info!("The data was obtained from the environment variable TNAP_ROOT");
-            val
-        },
-        Err(err) => {
-            log::info!("{}", err);
-            log::info!("The data was obtained from the current directory");
-            Path::new(".").canonicalize().unwrap().to_str().unwrap().to_string()
-        }
-    };
-    log::info!("TNAP_ROOT: {}", tnap_root);
+    let tnap_root = get_tnap_root()?;
 
-    let config_path = format!("{}/config.toml", tnap_root);
+    let config_path = tnap_root.join("config.toml");
+    log::info!("config_path: {:?}", config_path);
 
-    let contents = fs::read_to_string(config_path).unwrap();
-    let value = contents.parse::<Value>().unwrap();
-
+    let value = fs::read_to_string(config_path)?.parse::<Value>().unwrap();
     match value
         .get("prompts")
         .and_then(|v| v.get(key))
@@ -96,86 +85,49 @@ fn read_config(key: &str) -> Result<String> {
 }
 
 fn display_theme(theme: &str, ascii: bool) -> Result<()> {
-    // Obtained from the environment variable TNAP_ROOT, or if it does not exist, the path of the current directory is selected
-    let tnap_root = match env::var("TNAP_ROOT") {
-        Ok(val) => {
-            log::info!("The data was obtained from the environment variable TNAP_ROOT");
-            val
-        },
-        Err(err) => {
-            log::info!("{}", err);
-            log::info!("The data was obtained from the current directory");
-            Path::new(".").canonicalize().unwrap().to_str().unwrap().to_string()
-        }
-    };
-    log::info!("TNAP_ROOT: {}", tnap_root);
+    let tnap_root = get_tnap_root()?;
 
-    let themes_path = format!("{}/themes", tnap_root);
-    log::info!("themes_path: {}", themes_path);
+    let theme_path = tnap_root.join("themes").join(theme);
+    log::info!("{}_path: {:?}", theme, theme_path);
 
-    let theme_path = format!("{}/{}", themes_path, theme);
-    log::info!("{}_path: {}", theme, theme_path);
-
-    if Path::new(&theme_path).exists() {
-        let files = fs::read_dir(Path::new(&theme_path)).unwrap();
-        let mut flag = false;
-
-        for file in files {
-            let file_path = file.unwrap().path();
-
-            // Checks if a file exists and if it is an image file.
-            if file_path.is_file() && is_image_file(&file_path){
-                log::info!("image_path： {}", file_path.display());
-            } else {
-                flag = true;
-                break;
-            }
-        }
-
-        // If the file contains anything other than an image file
-        if flag {
-            bail!("{} ({}) include non-image file", theme, theme_path);
-        }
-
-        return app::run(Path::new(&theme_path), ascii);
+    if !theme_path.exists() {
+        bail!("{} ({:?}) is not found", theme, theme_path)
     }
-    bail!("{} ({}) is not found", theme, theme_path);
+
+    for file in fs::read_dir(&theme_path)? {
+        let file_path = file?.path();
+
+        // Checks if a file exists and if it is an image file.
+        if file_path.is_file() && is_image_file(&file_path) {
+            log::info!("image_path: {:?}", file_path);
+        } else {
+            // If the file contains anything other than an image file, return error
+            bail!("{} ({:?}) include non-image file", theme, theme_path);
+        }
+    }
+
+    app::run(&theme_path, ascii)
 }
 
 fn is_image_file(path: &Path) -> bool {
     let image_extensions = ["png", "jpg", "jpeg", "PNG", "JPG", "JPEG"];
-    let extension = path.extension().unwrap().to_str().unwrap();
+    let extension = path.extension().and_then(OsStr::to_str).unwrap(); // .to_str().unwrap();
 
     image_extensions.contains(&extension)
 }
 
 fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
-    let tnap_root = match env::var("TNAP_ROOT") {
-        Ok(val) => {
-            log::info!("The data was obtained from the environment variable TNAP_ROOT");
-            val
-        },
-        Err(err) => {
-            log::info!("{}", err);
-            log::info!("The data was obtained from the current directory");
-            Path::new(".").canonicalize().unwrap().to_str().unwrap().to_string()
-        }
-    };
-    log::info!("TNAP_ROOT: {}", tnap_root);
+    let tnap_root = get_tnap_root()?;
 
-    let dir_path = format!("{}/generated_images", tnap_root);
-    log::info!("dir_path: {}", dir_path);
-
+    // Create a directory to save generated images
     let time = Local::now().format("%Y_%m%d_%H%M").to_string();
-    let dir_path = Path::new(&dir_path).join(time);
-
+    let dir_path = tnap_root.join("generated_images").join(time);
+    log::info!("dir_path: {:?}", dir_path);
     create_dir_all(&dir_path)?;
 
     // Add an image path to display while waiting for image generation
-    let path_to_sample = format!("{}/examples", tnap_root);
-    log::info!("path_to_sample: {}", path_to_sample);
-
-    let path_to_sample = Path::new(&path_to_sample).join("girl_with_headphone.png");
+    let path_to_sample = tnap_root.join("examples").join("girl_with_headphone.png");
+    log::info!("path_to_sample: {:?}", path_to_sample);
     PATHS.lock().unwrap().push(path_to_sample);
 
     let dir = dir_path.clone();
@@ -214,4 +166,22 @@ fn display_generated_image(prompt: &str, ascii: bool) -> Result<()> {
         .expect("Couldn't join on the associated thread.");
 
     Ok(())
+}
+
+fn get_tnap_root() -> Result<PathBuf> {
+    // Obtained from the environment variable TNAP_ROOT, or if it does not exist, the path of the current directory is selected
+    let tnap_root = match env::var("TNAP_ROOT") {
+        Ok(val) => {
+            log::info!("The data was obtained from the environment variable TNAP_ROOT");
+            PathBuf::from(val)
+        }
+        Err(err) => {
+            log::info!("{}", err);
+            log::info!("The data was obtained from the current directory");
+            current_dir()?
+        }
+    };
+
+    log::info!("TNAP_ROOT: {:?}", tnap_root);
+    Ok(tnap_root)
 }
