@@ -68,9 +68,7 @@ fn main() -> Result<()> {
 }
 
 fn read_config(key: &str) -> Result<String> {
-    let tnap_root = get_tnap_root()?;
-
-    let config_path = tnap_root.join("config.toml");
+    let config_path = get_tnap_root()?.join("config.toml");
     log::info!("config_path: {:?}", config_path);
 
     let value = fs::read_to_string(config_path)?.parse::<Value>().unwrap();
@@ -85,9 +83,7 @@ fn read_config(key: &str) -> Result<String> {
 }
 
 fn display_theme(theme: &str, ascii: bool) -> Result<()> {
-    let tnap_root = get_tnap_root()?;
-
-    let theme_path = tnap_root.join("themes").join(theme);
+    let theme_path = get_tnap_root()?.join("themes").join(theme);
     log::info!("{}_path: {:?}", theme, theme_path);
 
     if !theme_path.exists() {
