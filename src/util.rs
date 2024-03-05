@@ -14,10 +14,7 @@ pub fn get_files(dir: &Path) -> Result<Vec<PathBuf>> {
     let mut files = vec![];
 
     for entry in fs::read_dir(dir)? {
-        let path = entry?.path();
-        if path.is_file() {
-            files.push(path);
-        }
+        files.push(entry?.path());
     }
 
     Ok(files)

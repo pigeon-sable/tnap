@@ -17,6 +17,8 @@ use std::path::Path;
 use std::sync::atomic::Ordering::SeqCst;
 use std::time::{Duration, Instant};
 
+const DURATION: u64 = 3;
+
 pub fn run(dir: &Path, ascii: bool) -> Result<()> {
     let files = get_files(dir)?;
     PATHS.lock().unwrap().extend_from_slice(&files);
@@ -64,7 +66,7 @@ impl App {
 
 impl App {
     fn run_tui<B: Backend>(&mut self, terminal: &mut Terminal<B>) -> Result<()> {
-        let tick_rate = Duration::from_secs(3);
+        let tick_rate = Duration::from_secs(DURATION);
         let mut last_tick = Instant::now();
 
         loop {
@@ -102,21 +104,24 @@ impl App {
                 .expect("Failed to convert image to ascii art")
                 .into_text()
                 .unwrap();
+
             let ascii_height = ascii_art.lines.len() as u16;
             let offset_y = (frame_size.height - ascii_height) / 2;
             let area = ratatui::layout::Rect::new(0, offset_y, frame_size.width, ascii_height);
-            let paragraph = Paragraph::new(ascii_art);
             // println!("frame.size(): {}, area: {}", frame.size(), area);
             // println!("ascii_lines: {}", ascii_lines);
+
+            let paragraph = Paragraph::new(ascii_art);
             frame.render_widget(paragraph, area)
         } else {
+            let image = StatefulImage::new(None).resize(Resize::Fit);
+
             let image_width = frame_size.width * 4 / 5;
             let image_height = frame_size.height * 4 / 5;
 
-            let image = StatefulImage::new(None).resize(Resize::Fit);
-            // 描画エリアの中央配置を計算
+            // Calculate centering of drawing area
             let area = ratatui::layout::Rect::new(
-                (frame_size.width / 2).saturating_sub(image_width / 2) + frame_size.width * 1 / 7,
+                (frame_size.width / 2).saturating_sub(image_width / 2) + frame_size.width / 7,
                 // (frame_size.width / 2).saturating_sub(image_width / 2),
                 (frame_size.height / 2).saturating_sub(image_height / 2),
                 image_width,
@@ -152,25 +157,3 @@ impl App {
         self.image_state = self.picker.new_resize_protocol(dyn_img);
     }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use ratatui::backend::TestBackend;
-
-//     #[test]
-//     fn test_ui(){
-//         static mut PATH_IN_UI:str = "path";
-//         static mut ASCII_HEIGHT:u16 = 0;
-//         static FILE:str = "";
-
-//         let mut app = App::new(FILE, false);
-//         let mut test_frame = Frame::new(TestBackend::new(10, 10)); 
-
-
-//         app.ui(&mut test_frame);
-//         asserteq!(PATH_IN_UI, "***");  
-//         asserteq!(ASCII_HEIGHT, );
-    
-//     }
-// }
